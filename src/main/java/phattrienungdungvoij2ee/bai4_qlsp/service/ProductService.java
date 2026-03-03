@@ -1,57 +1,74 @@
 package phattrienungdungvoij2ee.bai4_qlsp.service;
 
-import phattrienungdungvoij2ee.bai4_qlsp.model.Product;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import phattrienungdungvoij2ee.bai4_qlsp.model.Product;
+import phattrienungdungvoij2ee.bai4_qlsp.repository.ProductRepository;
+
 import java.io.IOException;
 import java.nio.file.*;
 import java.util.*;
 
 @Service
 public class ProductService {
-    private List<Product> listProduct = new ArrayList<>();
 
-    public List<Product> getAll() { return listProduct; }
+    @Autowired
+    private ProductRepository productRepository;
+
+    public List<Product> getAll() {
+        return productRepository.findAll();
+    }
 
     public Product get(int id) {
-        return listProduct.stream().filter(p -> p.getId() == id).findFirst().orElse(null);
+        return productRepository.findById(id).orElse(null);
     }
 
     public void add(Product newProduct) {
-        int maxId = listProduct.stream().mapToInt(Product::getId).max().orElse(0);
-        newProduct.setId(maxId + 1);
-        listProduct.add(newProduct);
+        // Không cần tính maxId nữa vì MySQL tự tăng ID
+        productRepository.save(newProduct);
     }
 
     public void update(Product editProduct) {
         Product find = get(editProduct.getId());
         if (find != null) {
-            find.setPrice(editProduct.getPrice());
             find.setName(editProduct.getName());
+            find.setPrice(editProduct.getPrice());
+            find.setCategory(editProduct.getCategory());
             if (editProduct.getImage() != null) {
                 find.setImage(editProduct.getImage());
             }
+            productRepository.save(find); // Lưu thay đổi xuống MySQL
         }
     }
 
     public void updateImage(Product newProduct, MultipartFile imageProduct) {
+        if (imageProduct.isEmpty()) return;
+
         String contentType = imageProduct.getContentType();
         if (contentType != null && !contentType.startsWith("image/")) {
             throw new IllegalArgumentException("Tệp tải lên không phải là hình ảnh!");
         }
-        if (!imageProduct.isEmpty()) {
-            try {
-                Path dirImages = Paths.get("static/images");
-                if (!Files.exists(dirImages)) {
-                    Files.createDirectories(dirImages);
-                }
-                String newFileName = UUID.randomUUID() + "_" + imageProduct.getOriginalFilename();
-                Path pathFileUpload = dirImages.resolve(newFileName);
-                Files.copy(imageProduct.getInputStream(), pathFileUpload, StandardCopyOption.REPLACE_EXISTING);
-                newProduct.setImage(newFileName);
-            } catch (IOException e) {
-                e.printStackTrace(); // Handle the exception appropriately
+
+        try {
+            // Lưu ý: Trong Spring Boot, nên lưu vào folder 'src/main/resources/static/images'
+            // để ảnh có thể hiển thị được ngay trên trình duyệt
+            Path dirImages = Paths.get("src/main/resources/static/images");
+            if (!Files.exists(dirImages)) {
+                Files.createDirectories(dirImages);
             }
+            
+            String newFileName = UUID.randomUUID() + "_" + imageProduct.getOriginalFilename();
+            Path pathFileUpload = dirImages.resolve(newFileName);
+            Files.copy(imageProduct.getInputStream(), pathFileUpload, StandardCopyOption.REPLACE_EXISTING);
+            
+            newProduct.setImage(newFileName);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+    }
+    
+    public void delete(int id) {
+        productRepository.deleteById(id);
     }
 }

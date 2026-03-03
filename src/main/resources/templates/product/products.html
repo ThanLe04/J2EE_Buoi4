@@ -28,9 +28,11 @@
                     <td th:text="${product.name}"></td>
                     <td th:text="${product.price}"></td>
                     <td>
-                        <img height="120" width="150" 
-                             th:src="@{/images/} + ${product.image}" 
-                             alt="Product Image">
+                        <img th:if="${product.image != null}" 
+                            th:src="@{'/images/' + ${product.image}}" 
+                            height="120" width="150" class="img-thumbnail"
+                            alt="Product Image">
+                        <span th:unless="${product.image != null}">No Image</span>
                     </td>
                     <td th:text="${product.category?.name}"></td>
                     <td>

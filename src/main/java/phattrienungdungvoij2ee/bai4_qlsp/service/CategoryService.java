@@ -1,28 +1,23 @@
 package phattrienungdungvoij2ee.bai4_qlsp.service;
 
-import phattrienungdungvoij2ee.bai4_qlsp.model.Category;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import java.util.ArrayList;
+import phattrienungdungvoij2ee.bai4_qlsp.model.Category;
+import phattrienungdungvoij2ee.bai4_qlsp.repository.CategoryRepository;
+
 import java.util.List;
 
 @Service
 public class CategoryService {
-    private List<Category> listCategory = new ArrayList<>();
 
-    public CategoryService() {
-        // Giả lập dữ liệu ban đầu theo yêu cầu đề bài
-        listCategory.add(new Category(1, "Điện thoại"));
-        listCategory.add(new Category(2, "Laptop"));
-    }
+    @Autowired
+    private CategoryRepository categoryRepository;
 
     public List<Category> getAll() {
-        return listCategory;
+        return categoryRepository.findAll(); // Lấy tất cả từ MySQL
     }
 
     public Category get(int id) {
-        return listCategory.stream()
-                .filter(c -> c.getId() == id)
-                .findFirst()
-                .orElse(null);
+        return categoryRepository.findById(id).orElse(null); // Tìm theo ID trong MySQL
     }
 }
