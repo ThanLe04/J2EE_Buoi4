@@ -3,13 +3,16 @@
       xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{_layout}"
-      xmlns:custom="http://www.w3.org/1999/xhtml"> <head>
+      xmlns:custom="http://www.w3.org/1999/xhtml"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"> 
+<head>
     <meta charset="UTF-8">
     <title>List Products</title>
 </head>
 <body>
     <div layout:fragment="content" class="container body-content">
-        <a th:href="@{/products/create}" class="btn btn-primary" style="margin-bottom: 10px;">Create New Product</a>
+        
+        <a sec:authorize="hasRole('ADMIN')" th:href="@{/products/create}" class="btn btn-primary" style="margin-bottom: 10px;">Create New Product</a>
         
         <table class="table table-striped">
             <thead>
@@ -19,7 +22,8 @@
                     <th scope="col">Price</th>
                     <th scope="col">Image</th>
                     <th scope="col">Category Name</th>
-                    <th scope="col">Action</th>
+                    
+                    <th scope="col" sec:authorize="hasRole('ADMIN')">Action</th>
                 </tr>
             </thead>
             <tbody>
@@ -35,7 +39,8 @@
                         <span th:unless="${product.image != null}">No Image</span>
                     </td>
                     <td th:text="${product.category?.name}"></td>
-                    <td>
+                    
+                    <td sec:authorize="hasRole('ADMIN')">
                         <a th:href="@{/products/edit/{id}(id=${product.id})}" class="btn btn-secondary">Edit</a>
                         <a th:href="@{/products/delete/{id}(id=${product.id})}" class="btn btn-danger">Delete</a>
                     </td>
