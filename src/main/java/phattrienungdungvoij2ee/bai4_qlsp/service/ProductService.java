@@ -10,6 +10,11 @@ import java.io.IOException;
 import java.nio.file.*;
 import java.util.*;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+
 @Service
 public class ProductService {
 
@@ -70,5 +75,23 @@ public class ProductService {
     
     public void delete(int id) {
         productRepository.deleteById(id);
+    }
+
+    public Page<Product> findPaginated(int pageNo, int pageSize, String sortField, String sortDir, String keyword, Integer categoryId) {
+        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? 
+                    Sort.by(sortField).ascending() : Sort.by(sortField).descending();
+        Pageable pageable = PageRequest.of(pageNo - 1, pageSize, sort);
+
+        if (categoryId != null && categoryId > 0) {
+            if (keyword != null && !keyword.isEmpty()) {
+                return productRepository.findByNameContainingIgnoreCaseAndCategoryId(keyword, categoryId, pageable);
+            }
+            return productRepository.findByCategoryId(categoryId, pageable);
+        }
+        
+        if (keyword != null && !keyword.isEmpty()) {
+            return productRepository.findByNameContainingIgnoreCase(keyword, pageable);
+        }
+        return productRepository.findAll(pageable);
     }
 }

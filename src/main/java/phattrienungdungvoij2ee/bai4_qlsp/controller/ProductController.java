@@ -1,15 +1,16 @@
 package phattrienungdungvoij2ee.bai4_qlsp.controller;
 
-import phattrienungdungvoij2ee.bai4_qlsp.model.Category;
 import phattrienungdungvoij2ee.bai4_qlsp.model.Product;
 import phattrienungdungvoij2ee.bai4_qlsp.service.*;
 import jakarta.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.data.domain.Page;
 
 @Controller
 @RequestMapping("/products")
@@ -19,8 +20,28 @@ public class ProductController {
     @Autowired private CategoryService categoryService;
 
     @GetMapping("")
-    public String index(Model model) {
-        model.addAttribute("listproduct", productService.getAll());
+    public String viewProducts(Model model,
+                            @RequestParam(value = "page", defaultValue = "1") int pageNo,
+                            @RequestParam(value = "sortField", defaultValue = "name") String sortField,
+                            @RequestParam(value = "sortDir", defaultValue = "asc") String sortDir,
+                            @RequestParam(value = "keyword", required = false) String keyword,
+                            @RequestParam(value = "categoryId", required = false) Integer categoryId) {
+        
+        int pageSize = 5;
+        Page<Product> page = productService.findPaginated(pageNo, pageSize, sortField, sortDir, keyword, categoryId);
+        
+        model.addAttribute("listProducts", page.getContent());
+        model.addAttribute("categories", categoryService.getAll()); // Để hiển thị danh sách trong Dropdown
+        model.addAttribute("categoryId", categoryId); // Để giữ trạng thái đã chọn
+        
+        // Các model attribute khác (currentPage, totalPages,...) giữ nguyên như cũ
+        model.addAttribute("currentPage", pageNo);
+        model.addAttribute("totalPages", page.getTotalPages());
+        model.addAttribute("sortField", sortField);
+        model.addAttribute("sortDir", sortDir);
+        model.addAttribute("keyword", keyword);
+        model.addAttribute("reverseSortDir", sortDir.equals("asc") ? "desc" : "asc");
+
         return "product/products";
     }
 
@@ -89,10 +110,10 @@ public class ProductController {
         return "redirect:/products";
     }
 
-    // Bổ sung thêm tính năng xóa nếu bạn muốn hoàn thiện CRUD
     @GetMapping("/delete/{id}")
     public String delete(@PathVariable int id) {
         productService.delete(id);
         return "redirect:/products";
     }
+    
 }

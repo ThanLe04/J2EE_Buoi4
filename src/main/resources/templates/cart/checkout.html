@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en" 
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{_layout}">
+<head>
+    <meta charset="UTF-8">
+    <title>Thanh toán Đơn hàng</title>
+</head>
+<body>
+    <div layout:fragment="content" class="container body-content mt-4">
+        <h2 class="mb-4 text-center">Thông tin Giao hàng</h2>
+
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card shadow">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0">Vui lòng điền thông tin người nhận</h5>
+                    </div>
+                    <div class="card-body">
+                        <form th:action="@{/cart/checkout}" th:object="${order}" method="post">
+                            
+                            <div class="mb-3">
+                                <label for="customerName" class="form-label">Họ và Tên</label>
+                                <input type="text" class="form-control" id="customerName" th:field="*{customerName}" required placeholder="Nhập họ và tên...">
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="phone" class="form-label">Số điện thoại</label>
+                                <input type="text" class="form-control" id="phone" th:field="*{phone}" required placeholder="Nhập số điện thoại...">
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="address" class="form-label">Địa chỉ giao hàng</label>
+                                <textarea class="form-control" id="address" th:field="*{address}" rows="3" required placeholder="Nhập địa chỉ chi tiết..."></textarea>
+                            </div>
+
+                            <div class="alert alert-warning text-center fs-5">
+                                Tổng số tiền cần thanh toán: <strong class="text-danger" th:text="${#numbers.formatDecimal(TOTAL, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></strong>
+                            </div>
+
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-success btn-lg">Xác nhận Đặt hàng</button>
+                                <a th:href="@{/cart}" class="btn btn-outline-secondary">Quay lại Giỏ hàng</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

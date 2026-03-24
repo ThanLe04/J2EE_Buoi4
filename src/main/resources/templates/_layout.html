@@ -23,6 +23,10 @@
 
             <div class="d-flex align-items-center gap-3" style="padding-right: 20px">
 
+                <a class="btn btn-warning fw-bold" th:href="@{/cart}">
+                    🛒 Giỏ hàng
+                </a>
+
                 <div sec:authorize="!isAuthenticated()">
                     <a class="btn btn-outline-light" th:href="@{/login}">Login</a>
                 </div>
@@ -33,7 +37,7 @@
                     </span>
                     
                     <form th:action="@{/logout}" method="post" class="m-0">
-                        <button type="submit" class="btn btn-danger">Logout</button>
+                        <button type="submit" class="btn btn-sm btn-danger">Logout</button>
                     </form>
                 </div>
 
